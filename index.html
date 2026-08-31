@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Instagram Follow Checker</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div class="container">
+        <h1>Instagram Follow Checker</h1>
+        <p class="subtitle">
+            Find people you follow who don't follow you back.
+        </p>
+
+        <div class="upload-box">
+            <label>Followers JSON</label>
+            <input type="file" id="followersFile" accept=".json">
+
+            <label>Following JSON</label>
+            <input type="file" id="followingFile" accept=".json">
+
+            <button id="checkBtn">Check</button>
+        </div>
+
+        <div id="stats" class="stats"></div>
+
+        <div class="result">
+            <h2>Not Following You Back</h2>
+            <div id="results"></div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
