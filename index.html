@@ -1,11 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Instagram Follow Checker</title>
     <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
 
     <div class="container">
@@ -15,11 +17,8 @@
         </p>
 
         <div class="upload-box">
-            <label>Followers JSON</label>
-            <input type="file" id="followersFile" accept=".json">
-
-            <label>Following JSON</label>
-            <input type="file" id="followingFile" accept=".json">
+            <label>Select your JSON files (followers_1.json and following.json)</label>
+            <input type="file" id="jsonFiles" accept=".json" multiple>
 
             <button id="checkBtn">Check</button>
         </div>
@@ -34,4 +33,5 @@
 
     <script src="script.js"></script>
 </body>
+
 </html>

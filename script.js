@@ -1,36 +1,32 @@
-const followersInput = document.getElementById("followersFile");
-const followingInput = document.getElementById("followingFile");
+const jsonFilesInput = document.getElementById("jsonFiles");
 const checkBtn = document.getElementById("checkBtn");
 
 const resultsDiv = document.getElementById("results");
 const statsDiv = document.getElementById("stats");
 
-
 // ------------------------------------
 // Read JSON file
 // ------------------------------------
 function readJSON(file) {
-    return new Promise((resolve, reject) => {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
 
-        const reader = new FileReader();
+    reader.onload = () => {
+      try {
+        const data = JSON.parse(reader.result);
+        resolve(data);
+      } catch (error) {
+        reject("Invalid JSON file");
+      }
+    };
 
-        reader.onload = () => {
-            try {
-                const data = JSON.parse(reader.result);
-                resolve(data);
-            } catch (error) {
-                reject("Invalid JSON file");
-            }
-        };
+    reader.onerror = () => {
+      reject("Could not read file");
+    };
 
-        reader.onerror = () => {
-            reject("Could not read file");
-        };
-
-        reader.readAsText(file);
-    });
+    reader.readAsText(file);
+  });
 }
-
 
 // ------------------------------------
 // Extract Followers
@@ -48,38 +44,28 @@ function readJSON(file) {
 // ]
 // ------------------------------------
 function extractFollowers(data) {
+  const followers = [];
 
-    const followers = [];
+  if (!Array.isArray(data)) {
+    return followers;
+  }
 
-    if (!Array.isArray(data)) {
-        return followers;
-    }
-
-    data.forEach(item => {
-
+  data.forEach((item) => {
+    if (item && Array.isArray(item.string_list_data)) {
+      item.string_list_data.forEach((entry) => {
         if (
-            item &&
-            Array.isArray(item.string_list_data)
+          entry &&
+          typeof entry.value === "string" &&
+          entry.value.trim() !== ""
         ) {
-
-            item.string_list_data.forEach(entry => {
-
-                if (
-                    entry &&
-                    typeof entry.value === "string" &&
-                    entry.value.trim() !== ""
-                ) {
-                    followers.push(entry.value.trim());
-                }
-
-            });
+          followers.push(entry.value.trim());
         }
+      });
+    }
+  });
 
-    });
-
-    return [...new Set(followers)];
+  return [...new Set(followers)];
 }
-
 
 // ------------------------------------
 // Extract Following
@@ -99,67 +85,39 @@ function extractFollowers(data) {
 // }
 // ------------------------------------
 function extractFollowing(data) {
+  const following = [];
 
-    const following = [];
+  // Instagram normally stores following here
+  if (data && Array.isArray(data.relationships_following)) {
+    data.relationships_following.forEach((item) => {
+      if (item && typeof item.title === "string" && item.title.trim() !== "") {
+        following.push(item.title.trim());
+      }
+    });
+  }
 
-    // Instagram normally stores following here
-    if (
-        data &&
-        Array.isArray(data.relationships_following)
-    ) {
-
-        data.relationships_following.forEach(item => {
-
-            if (
-                item &&
-                typeof item.title === "string" &&
-                item.title.trim() !== ""
-            ) {
-
-                following.push(item.title.trim());
-
-            }
-
-        });
-
-    }
-
-    return [...new Set(following)];
+  return [...new Set(following)];
 }
-
 
 // ------------------------------------
 // Compare Followers vs Following
 // ------------------------------------
 function findNotFollowingBack(followers, following) {
+  // Make a lowercase Set for fast comparison
+  const followersSet = new Set(
+    followers.map((username) => username.toLowerCase()),
+  );
 
-    // Make a lowercase Set for fast comparison
-    const followersSet = new Set(
-        followers.map(username =>
-            username.toLowerCase()
-        )
-    );
-
-    return following.filter(username => {
-
-        return !followersSet.has(
-            username.toLowerCase()
-        );
-
-    });
+  return following.filter((username) => {
+    return !followersSet.has(username.toLowerCase());
+  });
 }
-
 
 // ------------------------------------
 // Display results
 // ------------------------------------
-function displayResults(
-    followers,
-    following,
-    notFollowingBack
-) {
-
-    statsDiv.innerHTML = `
+function displayResults(followers, following, notFollowingBack) {
+  statsDiv.innerHTML = `
         <div>
             <strong>Followers:</strong>
             ${followers.length}
@@ -176,142 +134,113 @@ function displayResults(
         </div>
     `;
 
+  resultsDiv.innerHTML = "";
 
-    resultsDiv.innerHTML = "";
-
-
-    // Nobody found
-    if (notFollowingBack.length === 0) {
-
-        resultsDiv.innerHTML = `
+  // Nobody found
+  if (notFollowingBack.length === 0) {
+    resultsDiv.innerHTML = `
             <div class="empty">
                 🎉 Everyone you follow follows you back!
             </div>
         `;
 
-        return;
-    }
+    return;
+  }
 
+  // Create list
+  notFollowingBack.forEach((username) => {
+    const div = document.createElement("div");
 
-    // Create list
-    notFollowingBack.forEach(username => {
+    div.className = "user";
 
-        const div = document.createElement("div");
+    const link = document.createElement("a");
 
-        div.className = "user";
+    link.href = `https://www.instagram.com/${encodeURIComponent(username)}/`;
 
+    link.target = "_blank";
 
-        const link = document.createElement("a");
+    link.rel = "noopener noreferrer";
 
-        link.href =
-            `https://www.instagram.com/${encodeURIComponent(username)}/`;
+    link.textContent = `@${username}`;
 
-        link.target = "_blank";
+    div.appendChild(link);
 
-        link.rel = "noopener noreferrer";
-
-        link.textContent = `@${username}`;
-
-
-        div.appendChild(link);
-
-        resultsDiv.appendChild(div);
-
-    });
+    resultsDiv.appendChild(div);
+  });
 }
-
 
 // ------------------------------------
 // Check button
 // ------------------------------------
 checkBtn.addEventListener("click", async () => {
+  const selectedFiles = jsonFilesInput.files;
 
-    const followersFile = followersInput.files[0];
-    const followingFile = followingInput.files[0];
+  let followersFile = null;
+  let followingFile = null;
 
+  if (selectedFiles.length === 0) {
+    alert("Please select your JSON files.");
+    return;
+  }
 
-    // Check files
-    if (!followersFile || !followingFile) {
+  for (let i = 0; i < selectedFiles.length; i++) {
+    const file = selectedFiles[i];
+    if (file.name.includes("followers_1.json")) {
+      followersFile = file;
+    } else if (file.name === "following.json") {
+      followingFile = file;
+    }
+  }
 
-        alert(
-            "Please select both Followers JSON and Following JSON files."
-        );
+  // Check files
+  if (!followersFile || !followingFile) {
+    alert("Please select both 'followers_1.json' and 'following.json' files.");
+    return;
+  }
 
-        return;
+  try {
+    // Read both files
+    const followersJSON = await readJSON(followersFile);
+
+    const followingJSON = await readJSON(followingFile);
+
+    // Extract usernames
+    const followers = extractFollowers(followersJSON);
+
+    const following = extractFollowing(followingJSON);
+
+    // Debug information
+    console.log("Followers:", followers);
+
+    console.log("Following:", following);
+
+    // Check if extraction worked
+    if (followers.length === 0) {
+      alert(
+        "No followers were found. " +
+          "Please make sure you selected the correct followers JSON file.",
+      );
+
+      return;
     }
 
+    if (following.length === 0) {
+      alert(
+        "No following accounts were found. " +
+          "Please make sure you selected the correct following JSON file.",
+      );
 
-    try {
-
-        // Read both files
-        const followersJSON =
-            await readJSON(followersFile);
-
-        const followingJSON =
-            await readJSON(followingFile);
-
-
-        // Extract usernames
-        const followers =
-            extractFollowers(followersJSON);
-
-        const following =
-            extractFollowing(followingJSON);
-
-
-        // Debug information
-        console.log("Followers:", followers);
-
-        console.log("Following:", following);
-
-
-        // Check if extraction worked
-        if (followers.length === 0) {
-
-            alert(
-                "No followers were found. " +
-                "Please make sure you selected the correct followers JSON file."
-            );
-
-            return;
-        }
-
-
-        if (following.length === 0) {
-
-            alert(
-                "No following accounts were found. " +
-                "Please make sure you selected the correct following JSON file."
-            );
-
-            return;
-        }
-
-
-        // Compare
-        const notFollowingBack =
-            findNotFollowingBack(
-                followers,
-                following
-            );
-
-
-        // Show results
-        displayResults(
-            followers,
-            following,
-            notFollowingBack
-        );
-
-
-    } catch (error) {
-
-        console.error(error);
-
-        alert(
-            "Something went wrong while reading the JSON files."
-        );
-
+      return;
     }
 
+    // Compare
+    const notFollowingBack = findNotFollowingBack(followers, following);
+
+    // Show results
+    displayResults(followers, following, notFollowingBack);
+  } catch (error) {
+    console.error(error);
+
+    alert("Something went wrong while reading the JSON files.");
+  }
 });
