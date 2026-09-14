@@ -4,7 +4,44 @@ const checkBtn = document.getElementById("checkBtn");
 const resultsDiv = document.getElementById("results");
 const statsDiv = document.getElementById("stats");
 
+const themeToggle = document.getElementById("theme-toggle");
+
 // ------------------------------------
+// Theme Functions
+// ------------------------------------
+
+// Apply theme to the body and update toggle state
+function applyTheme(theme) {
+    document.body.classList.toggle("dark-mode", theme === "dark");
+    themeToggle.checked = (theme === "dark");
+    localStorage.setItem("theme", theme);
+}
+
+// Detect initial theme preference
+function getInitialTheme() {
+    const savedTheme = localStorage.getItem("theme");
+    if (savedTheme) {
+        return savedTheme;
+    }
+
+    // Check system preference
+    return window.matchMedia('(prefers-color-scheme: dark)').matches ? "dark" : "light";
+}
+
+// Initialize theme on load
+document.addEventListener("DOMContentLoaded", () => {
+    const initialTheme = getInitialTheme();
+    applyTheme(initialTheme);
+});
+
+// Theme toggle event listener
+themeToggle.addEventListener("change", () => {
+    const currentTheme = localStorage.getItem("theme");
+    const newTheme = (currentTheme === "dark" || !currentTheme && window.matchMedia('(prefers-color-scheme: dark)').matches) ? "light" : "dark";
+    applyTheme(newTheme);
+});
+
+
 // Read JSON file
 // ------------------------------------
 function readJSON(file) {
