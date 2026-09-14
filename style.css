@@ -1,93 +1,204 @@
+:root {
+    --primary-gradient: linear-gradient(to right, #6a11cb 0%, #2575fc 100%);
+    --primary-color: #2575fc;
+    --text-dark: #333333;
+    --text-light: #666666;
+    --bg-light: #f0f2f5;
+    --box-bg: #ffffff;
+    --shadow-light: rgba(0, 0, 0, 0.08);
+    --shadow-medium: rgba(0, 0, 0, 0.12);
+}
+
 * {
     box-sizing: border-box;
+    margin: 0;
+    padding: 0;
 }
 
 body {
-    margin: 0;
-    font-family: Arial, sans-serif;
-    background: #f5f5f5;
-    color: #222;
+    font-family: 'Poppins', sans-serif;
+    background: var(--bg-light);
+    color: var(--text-dark);
+    line-height: 1.6;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 40px 20px;
 }
 
 .container {
-    max-width: 700px;
-    margin: 40px auto;
-    padding: 20px;
+    max-width: 750px;
+    width: 100%;
+    background: var(--box-bg);
+    padding: 30px;
+    border-radius: 15px;
+    box-shadow: 0 10px 30px var(--shadow-medium);
 }
 
 h1 {
-    margin-bottom: 5px;
+    text-align: center;
+    color: var(--primary-color);
+    margin-bottom: 10px;
+    font-size: 2.2em;
+    font-weight: 700;
 }
 
 .subtitle {
-    color: #666;
-    margin-bottom: 30px;
+    text-align: center;
+    color: var(--text-light);
+    margin-bottom: 40px;
+    font-size: 1.1em;
 }
 
 .upload-box {
-    background: white;
-    padding: 20px;
-    border-radius: 12px;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+    background: var(--bg-light);
+    padding: 25px;
+    border-radius: 10px;
+    box-shadow: inset 0 1px 5px var(--shadow-light);
+    margin-bottom: 30px;
 }
 
 label {
     display: block;
-    font-weight: bold;
-    margin-top: 15px;
-    margin-bottom: 8px;
+    font-weight: 600;
+    margin-bottom: 10px;
+    color: var(--text-dark);
+    font-size: 1em;
 }
 
-input {
+input[type="file"] {
     width: 100%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    margin-bottom: 15px;
+    font-size: 0.95em;
+}
+
+input[type="file"]::-webkit-file-upload-button {
+    background: var(--primary-color);
+    color: white;
+    padding: 8px 15px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-right: 15px;
+    transition: background 0.3s ease;
+}
+
+input[type="file"]::-webkit-file-upload-button:hover {
+    background: #1a5bb0;
 }
 
 button {
     width: 100%;
-    margin-top: 25px;
-    padding: 12px;
+    padding: 15px;
     border: none;
-    border-radius: 8px;
-    background: #111;
+    border-radius: 10px;
+    background: var(--primary-gradient);
     color: white;
-    font-size: 16px;
+    font-size: 1.1em;
+    font-weight: 600;
     cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px var(--shadow-light);
 }
 
 button:hover {
-    opacity: 0.85;
+    opacity: 0.9;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px var(--shadow-medium);
 }
 
 .stats {
-    margin-top: 20px;
-    padding: 15px;
-    background: white;
+    margin-top: 30px;
+    padding: 20px;
+    background: var(--box-bg);
     border-radius: 10px;
+    box-shadow: 0 2px 10px var(--shadow-light);
+    display: flex;
+    justify-content: space-around;
+    flex-wrap: wrap;
+    gap: 15px;
+    text-align: center;
+}
+
+.stats div {
+    flex: 1;
+    min-width: 150px;
+    padding: 10px;
+}
+
+.stats strong {
+    display: block;
+    font-size: 1.1em;
+    color: var(--primary-color);
+    margin-bottom: 5px;
 }
 
 .result {
-    margin-top: 25px;
+    margin-top: 40px;
+}
+
+.result h2 {
+    text-align: center;
+    color: var(--primary-color);
+    margin-bottom: 25px;
+    font-size: 1.8em;
+    font-weight: 600;
+}
+
+#results {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 15px;
 }
 
 .user {
-    background: white;
-    margin-bottom: 8px;
-    padding: 12px 15px;
-    border-radius: 8px;
+    background: var(--box-bg);
+    padding: 15px;
+    border-radius: 10px;
+    box-shadow: 0 2px 8px var(--shadow-light);
+    text-align: center;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.user:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 4px 12px var(--shadow-medium);
 }
 
 .user a {
-    color: #111;
+    color: var(--text-dark);
     text-decoration: none;
+    font-weight: 600;
+    font-size: 1em;
+    display: block;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .user a:hover {
+    color: var(--primary-color);
     text-decoration: underline;
 }
 
 .empty {
-    background: white;
-    padding: 20px;
-    border-radius: 8px;
-    color: #555;
+    background: var(--box-bg);
+    padding: 25px;
+    border-radius: 10px;
+    text-align: center;
+    font-size: 1.2em;
+    color: var(--text-dark);
+    font-weight: 600;
+    box-shadow: 0 2px 10px var(--shadow-light);
+}
+
+.empty::before {
+    content: "🎉";
+    display: block;
+    font-size: 2em;
+    margin-bottom: 10px;
 }
